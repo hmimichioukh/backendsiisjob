@@ -86,13 +86,13 @@ console.log(user.name)
     });
     return;
   }
-  const jobImage = req.file.path
+  //const jobImage =req.body
   const data = req.body;
 
   let job = new Job({
     userId: user._id,
     name: user.name,
-    jobImage :jobImage, 
+    jobImage :data.jobImage, 
     domain:data.domain,
     contrat:data.contrat,
     TeleTravailler:data.TeleTravailler,
@@ -774,7 +774,7 @@ router.get("/user/:id", jwtAuth, (req, res) => {
 // update profile pic 
 router.post("/userupload", jwtAuth,upload.single("imageUser"), (req, res)=>{
   const user   = req.user;
-  const imageUser = req.file.path;
+  const data = req.body;
   if (user.type == "recruiter") {
     Recruiter.findOne({ userId: user._id })
       .then((recruiter) => {
@@ -784,8 +784,8 @@ router.post("/userupload", jwtAuth,upload.single("imageUser"), (req, res)=>{
           });
           return;
         }
-        if (imageUser) {
-          recruiter.imageUser = imageUser;
+        if (data.imageUser) {
+          recruiter.imageUser = data.imageUser;
         }
         recruiter
           .save()
@@ -810,8 +810,8 @@ router.post("/userupload", jwtAuth,upload.single("imageUser"), (req, res)=>{
           });
           return;
         }
-        if (imageUser) {
-          jobApplicant.imageUser = imageUser;
+        if (data.imageUser) {
+          jobApplicant.imageUser = data.imageUser;
         }
      
         console.log(jobApplicant);
