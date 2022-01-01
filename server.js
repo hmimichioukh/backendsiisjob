@@ -1,13 +1,14 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const passportConfig = require("./lib/passportConfig");
 const cors = require("cors");
 const fs = require("fs");
-
+const db= process.env.MONGO_URL;
 // MongoDB
 mongoose
-  .connect(`mongodb+srv://hmimi:MK6z3SU95DdVTwy@siisjob.kofo3.mongodb.net/myFirstDatabase?retryWrites=true&w=majority  `, {
+  .connect(db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
@@ -30,8 +31,8 @@ if (!fs.existsSync("./public/upload")) {
   fs.mkdirSync("./public/upload");
 }
 const app = express();
-const port = 4444;
-
+const port = process.env.PORT;
+/**/
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
