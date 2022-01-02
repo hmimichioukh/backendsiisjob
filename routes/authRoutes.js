@@ -17,6 +17,7 @@ router.post("/signup", (req, res) => {
     password: data.password,
     type: data.type,
   });
+  
   user
     .save()
     .then(() => {
