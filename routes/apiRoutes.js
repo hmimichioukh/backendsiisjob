@@ -1921,5 +1921,282 @@ router.get("/rating", jwtAuth, (req, res) => {
 //     }
 //   })(req, res, next);
 // });
+// get all company 
+router.get("/enterprise",(req, res) => {
 
+  //let user = req.user;
+   //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+
+   Recruiter.find().collation({ locale: "en" }).sort().skip().limit()
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No Company found",
+        });
+        return;
+      }
+      res.json(posts);
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+// get company info by ID
+router.get("/enterprise/:id", (req, res) => {
+  User.findOne({ _id: req.params.id })
+    .then((userData) => {
+      if (userData === null) {
+        res.status(404).json({
+          message: "User does not exist",
+        });
+        return;
+      }
+      Recruiter.findOne({ userId: userData._id })
+      .then((recruiter) => {
+        if (recruiter === null) {
+          res.status(404).json({
+            message: "User does not exist",
+          });
+          return;
+        }
+        res.json(recruiter);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+
+//get Jobs of one company 
+router.get("/myJobs/:id",(req, res) => {
+  
+  let id = req.params.id;
+
+  let findParams = {};
+  let sortParams = {};
+
+
+  // to list down jobs posted by a particular recruiter
+  if (req.query.myjobs) {
+    findParams = {
+      ...findParams,
+      userId: id,
+    };
+  }
+
+// search bar
+  if (req.query.title) {
+    findParams = {
+      ...findParams,
+      title: {
+        $regex: new RegExp(req.query.title, "i"),
+      },
+    };
+  }
+  if (req.query.address) {
+    findParams = {
+      ...findParams,
+      address: {
+        $regex: new RegExp(req.query.address, "i"),
+      },
+    };
+  }
+// type de job
+  if (req.query.jobType) {
+    let jobTypes = [];
+    if (Array.isArray(req.query.jobType)) {
+      jobTypes = req.query.jobType;
+    } else {
+      jobTypes = [req.query.jobType];
+    }
+    console.log(jobTypes);
+    findParams = {
+      ...findParams,
+      jobType: {
+        $in: jobTypes,
+      },
+    };
+  }
+  // metier
+  if (req.query.domain) {
+    let domain = [];
+    if (Array.isArray(req.query.domain)) {
+      domain = req.query.domain;
+    } else {
+      domain = [req.query.domain];
+    }
+    console.log(domain);
+    findParams = {
+      ...findParams,
+      domain: {
+        $in: domain,
+      },
+    };
+  }
+  // experince 
+  if (req.query.experince) {
+    let experince = [];
+    if (Array.isArray(req.query.experince)) {
+      experince = req.query.experince;
+    } else {
+      experince = [req.query.experince];
+    }
+    console.log(experince);
+    findParams = {
+      ...findParams,
+      experince: {
+        $in: experince,
+      },
+    };
+  }
+  if (req.query.contrat) {
+    let contrat = [];
+    if (Array.isArray(req.query.contrat)) {
+      contrat = req.query.contrat;
+    } else {
+      contrat = [req.query.contrat];
+    }
+    console.log(contrat);
+    findParams = {
+      ...findParams,
+      contrat: {
+        $in: contrat,
+      },
+    };
+  }
+  if (req.query.salaryMin && req.query.salaryMax) {
+    findParams = {
+      ...findParams,
+      $and: [
+        {
+          salary: {
+            $gte: parseInt(req.query.salaryMin),
+          },
+        },
+        {
+          salary: {
+            $lte: parseInt(req.query.salaryMax),
+          },
+        },
+      ],
+    };
+  } else if (req.query.salaryMin) {
+    findParams = {
+      ...findParams,
+      salary: {
+        $gte: parseInt(req.query.salaryMin),
+      },
+    };
+  } else if (req.query.salaryMax) {
+    findParams = {
+      ...findParams,
+      salary: {
+        $lte: parseInt(req.query.salaryMax),
+      },
+    };
+  }
+
+  if (req.query.duration) {
+    findParams = {
+      ...findParams,
+      duration: {
+        $lt: parseInt(req.query.duration),
+      },
+    };
+  }
+
+  if (req.query.asc) {
+    if (Array.isArray(req.query.asc)) {
+      req.query.asc.map((key) => {
+        sortParams = {
+          ...sortParams,
+          [key]: 1,
+        };
+      });
+    } else {
+      sortParams = {
+        ...sortParams,
+        [req.query.asc]: 1,
+      };
+    }
+  }
+
+  if (req.query.desc) {
+    if (Array.isArray(req.query.desc)) {
+      req.query.desc.map((key) => {
+        sortParams = {
+          ...sortParams,
+          [key]: -1,
+        };
+      });
+    } else {
+      sortParams = {
+        ...sortParams,
+        [req.query.desc]: -1,
+      };
+    }
+  }
+
+  console.log(findParams);
+  console.log(sortParams);
+
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 33;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
+   //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+
+  let arr = [
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "recruiter"
+      },
+      
+    },
+    { $unwind: "$recruiter" },
+    { $match: findParams },
+  ];
+
+  if (Object.keys(sortParams).length > 0) {
+    arr = [
+      {
+        $lookup: {
+          from: "recruiterinfos",
+          localField: "userId",
+          foreignField: "userId",
+          as: "recruiter",
+        },
+      },
+      { $unwind: "$recruiter" },
+      { $match: findParams },
+      {
+        $sort: sortParams,
+      },
+    ];
+  }
+
+  console.log(arr);
+
+  Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No job found",
+        });
+        return;
+      }
+      res.json(posts);
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
 module.exports = router;
