@@ -13,10 +13,107 @@ const Rating = require("../db/Rating");
 const Testmonial = require("../db/Testmonial");
 const Newsletter = require("../db/Newsletter");
 const Message =require("../db/Message")
+const Hero = require("../db/Hero")
+const Step = require("../db/Step")
+const About = require("../db/About")
+const Partenaire = require("../db/Partenaire")
+const TestmonialImage = require("../db/TestmonialImage")
 const router = express.Router();
-
+router.get('/testmonialsimage',(req,res) => {
+  let query = {};
+  let limit = 1;
+  let sort  = {dateOfpost:-1}
+  TestmonialImage.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "Message found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  }) 
+})
+// get hero details
+router.get('/hero',(req,res)=>{
+  let query = {};
+  let limit = 1;
+  let sort  = {dateOfPosting:-1}
+  Hero.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No Hero found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
+// get about details
+router.get('/about',(req,res)=>{
+  let query = {};
+  let limit = 1;
+  let sort  = {dateOfPosting:-1}
+  About.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No About found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
+// get steps
+router.get('/steps',(req,res)=>{
+  let query = {};
+  let limit = 5;
+  let sort  = {dateOfPosting:1}
+  Step.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No Setps found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
+// get Partenaire
+router.get('/partenaire',(req,res)=>{
+  let query = {};
+  let limit = 5;
+  let sort  = {dateOfPosting:1}
+  Partenaire.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No Partenaire found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
 //send a message to the admin 
-
 router.post("/contact",(req, res) => {
     
   const data = req.body;

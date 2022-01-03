@@ -6,18 +6,13 @@ let schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    newsImage:{
-      type: String,
-    },
-    message: {
-      type: String,
-      required: true,
+    heroImage:{
+      type:String
     },
     buttonText:{
-        type: String,
-        required: true,
+      type:String
     },
-    dateOfpost: {
+    dateOfPosting: {
       type: Date,
       default: Date.now,
     },
@@ -25,5 +20,4 @@ let schema = new mongoose.Schema(
   { collation: { locale: "en" } }
 );
 
-
-module.exports = mongoose.model("newsletter", schema);
+module.exports = mongoose.model("heros", schema);

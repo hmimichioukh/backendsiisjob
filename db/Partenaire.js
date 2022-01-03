@@ -6,19 +6,11 @@ let schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    domain: {
-      type: String,
+    partImage:{
+      type:String,
       required: true,
     },
-    testImage: {
-      type: String,
-      required: true,
-    },
-    message: {
-      type: String,
-      required: true,
-    },
-    dateOfpost: {
+    dateOfPosting: {
       type: Date,
       default: Date.now,
     },
@@ -26,5 +18,4 @@ let schema = new mongoose.Schema(
   { collation: { locale: "en" } }
 );
 
-
-module.exports = mongoose.model("testmonials", schema);
+module.exports = mongoose.model("partenaires", schema);
