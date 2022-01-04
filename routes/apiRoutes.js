@@ -241,7 +241,7 @@ Job.find(query).sort(sort).limit(limit)
 })
 });
 // to get all the jobs [pagination] [for recruiter personal and for everyone]
-router.get("/jobs",(req, res) => {
+router.get("/jobs",async(req, res) => {
 
   //let user = req.user;
 
@@ -412,9 +412,7 @@ router.get("/jobs",(req, res) => {
   console.log(findParams);
   console.log(sortParams);
 
-  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
-  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 33;
-  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+ 
 
    //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
 
@@ -451,8 +449,13 @@ router.get("/jobs",(req, res) => {
   }
 
   console.log(arr);
-
-  Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+  let sort  = {dateOfPosting:-1}
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 9;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  const total = await Job.countDocuments({})
+  const numberPages = Math.ceil(total / limit)
+  Job.find(findParams).collation({ locale: "en" }).sort(sort).skip(skip).limit(limit)
     .then((posts) => {
       if (posts == null) {
         res.status(404).json({
@@ -460,7 +463,12 @@ router.get("/jobs",(req, res) => {
         });
         return;
       }
-      res.json(posts);
+      res.json({
+        numberPages,
+        page,
+        limit,
+        data:posts,
+      });
       //console.log(posts)
     })
     .catch((err) => {
@@ -1021,6 +1029,9 @@ router.put("/user", jwtAuth,upload.single("imageUser"), (req, res) => {
         }
         if (data.address) {
           recruiter.address = data.address;
+        }
+        if (data.webUrl) {
+          recruiter.webUrl = data.webUrl;
         }
         recruiter
           .save()
@@ -2069,7 +2080,7 @@ router.get("/enterprise/:id", (req, res) => {
 });
 
 //get Jobs of one company 
-router.get("/myJobs/:id",(req, res) => {
+router.get("/enterpriseJobs/:id",(req, res) => {
   
   let id = req.params.id;
 
@@ -2078,7 +2089,7 @@ router.get("/myJobs/:id",(req, res) => {
 
 
   // to list down jobs posted by a particular recruiter
-  if (req.query.myjobs) {
+  if (req.params.id) {
     findParams = {
       ...findParams,
       userId: id,

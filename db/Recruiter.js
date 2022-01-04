@@ -32,6 +32,9 @@ let schema = new mongoose.Schema(
     bio: {
       type: String,
     },
+    webUrl:{
+      type: String,
+    }
   },
   { collation: { locale: "en" } }
 );
