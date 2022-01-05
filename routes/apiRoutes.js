@@ -1235,9 +1235,6 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
       res.json(400).json(err);
     });
 });
-// add a job to your favorites
-
-
 // recruiter gets applications for a particular job [pagination] [todo: test: done]
 router.get("/jobs/:id/applications", jwtAuth, (req, res) => {
   const user = req.user;
