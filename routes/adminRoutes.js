@@ -51,6 +51,14 @@ router.post("/about",jwtAuth,(req, res)=>{
 })
 // get about 
 router.get('/about',jwtAuth,(req,res)=>{
+  let user = req.user;
+  if(user.type != "admin"){
+    res.status(401).json({
+      message: "You don't have permissions to see this",
+    });
+    return;
+
+  }
   let query = {};
   let limit = 1;
   let sort  = {dateOfPosting:-1}
@@ -88,6 +96,9 @@ router.put('/about/:id',jwtAuth, (req, res) => {
       return;
     }
     const data = req.body
+    if(data.imageTop){
+      about.imageTop = data.imageTop
+    }
     if(data.titleTop){
       about.titleTop = data.titleTop
     }
@@ -118,7 +129,8 @@ router.put('/about/:id',jwtAuth, (req, res) => {
     about
     .save()
     .then(() => {
-      res.json({ message:"about details updated successfully"})
+      res.json({ message:"about details updated successfully",
+      titleTop:about.titleTop})
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -130,6 +142,13 @@ router.put('/about/:id',jwtAuth, (req, res) => {
 })
 // create a partenaire
 router.post("/partenaire",jwtAuth,(req, res)=>{
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to change the hero details",
+    });
+    return;
+  }
   const data = req.body
   let partenaire = new Partenaire({
     name: data.name,
@@ -145,6 +164,57 @@ router.post("/partenaire",jwtAuth,(req, res)=>{
   .catch((err) => {
     res.status(400).json(err);
   });
+})
+// get partenaires
+router.get('/partenaire',jwtAuth,(req,res)=>{
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to change the hero details",
+    });
+    return;
+  }
+  let query = {};
+  let limit = 5;
+  let sort  = {dateOfPosting:1}
+  Partenaire.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No Partenaire found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
+// Delete partenaires
+router.delete('/partenaire/:id',jwtAuth,(req,res)=>{
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to change the hero details",
+    });
+    return;
+  }
+  Partenaire.findOneAndDelete({_id:req.params.id})
+  .then((post)=>{
+      if(post == null){
+          res.status(401).json({
+              message: "You don't have permissions to delete the job"
+          });
+          return
+      }
+      res.json({
+        message: "Job deleted successfully",
+      });
+      })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
 })
 // create the steps object
 router.post("/steps",jwtAuth,(req, res)=>{
@@ -255,6 +325,32 @@ router.post("/hero",jwtAuth,(req, res)=>{
     res.status(400).json(err);
   });
 })
+// get hero details
+router.get('/hero',jwtAuth,(req,res)=>{
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to change the step details",
+    });
+    return;
+  }
+  let query = {};
+  let limit = 1;
+  let sort  = {dateOfPosting:-1}
+  Hero.find(query).sort(sort).limit(limit)
+  .then((posts)=>{
+      if(posts == null){
+          res.status(404).json({
+              message: "No Hero found"
+          });
+          return
+      }
+      res.json(posts);
+  })
+  .catch((err) => {
+      res.status(400).json(err);
+  })
+})
 // delete the hero
 router.delete('/hero/:id',jwtAuth,(req,res)=>{
   const user = req.user;
@@ -328,10 +424,15 @@ router.put('/hero/:id',jwtAuth, (req, res) => {
 })
 // get all users
 router.get("/users",jwtAuth,(req, res) => {
-
-    //let user = req.user;
+    
+    let user = req.user;
      //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
-  
+     if(user.type != "admin"){
+      res.status(401).json({
+        message: "You don't have permissions to see This",
+      });
+      return;
+    }
   
   
      User.find().collation({ locale: "en" }).sort().skip().limit()
@@ -352,35 +453,44 @@ router.get("/users",jwtAuth,(req, res) => {
 //get all Recruiter
 router.get("/recruiter",jwtAuth,(req, res) => {
 
-    //let user = req.user;
+    let user = req.user;
      //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
-  
-  
-  
-     Recruiter.find().collation({ locale: "en" }).sort().skip().limit()
-      .then((posts) => {
-        if (posts == null) {
-          res.status(404).json({
-            message: "No job found",
-          });
-          return;
-        }
-        res.json(posts);
-        //console.log(posts)
-      })
-      .catch((err) => {
-        res.status(400).json(err);
+    if(user.type != "admin"){
+      res.status(401).json({
+        message: "You don't have permissions to add jobs",
       });
+      return;
+    }
+    Recruiter.find().collation({ locale: "en" }).sort().skip().limit()
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No job found",
+        });
+        return;
+      }
+      res.json(posts);
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+    
   });
 //get all Consultnats
 router.get("/consultans",jwtAuth,(req, res) => {
 
-    //let user = req.user;
+    let user = req.user;
      //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
   
-  
-  
-     JobApplicant.find().collation({ locale: "en" }).sort().skip().limit()
+     if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to see this infos",
+      });
+      return;
+    }
+    let sort  = {datejoin:-1}
+    JobApplicant.find().collation({ locale: "en" }).sort(sort).skip().limit()
       .then((posts) => {
         if (posts == null) {
           res.status(404).json({
@@ -396,28 +506,273 @@ router.get("/consultans",jwtAuth,(req, res) => {
       });
   });
 // get all jobs
-router.get("/jobs",jwtAuth,(req, res) => {
+router.get("/jobs",jwtAuth,async(req, res) => {
 
-    //let user = req.user;
-     //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
-  
-  
-  
-     Job.find().collation({ locale: "en" }).sort().skip().limit()
-      .then((posts) => {
-        if (posts == null) {
-          res.status(404).json({
-            message: "No job found",
-          });
-          return;
-        }
-        res.json(posts);
-        //console.log(posts)
-      })
-      .catch((err) => {
-        res.status(400).json(err);
+    let user = req.user;
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to add jobs",
       });
-  });
+      return;
+    }
+     //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+    let sort  = {dateOfPosting:-1}
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 6;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  const total = await Job.countDocuments({})
+  const numberPages = Math.ceil(total / limit)
+  Job.find({}).collation({ locale: "en" }).sort(sort).skip(skip).limit(limit)
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No job found",
+        });
+        return;
+      }
+      res.json({
+        numberPages,
+        page,
+        limit,
+        data:posts,
+      });
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+router.get("/countjobs",async(req, res) => {
+
+  //let user = req.user;
+
+  let findParams = {};
+  let sortParams = {};
+
+  // to list down jobs posted by a particular recruiter
+  /*if (user.type === "recruiter" && req.query.myjobs) {
+    findParams = {
+      ...findParams,
+      userId: user._id,
+    };
+  }
+*/
+// search bar
+  if (req.query.title) {
+    findParams = {
+      ...findParams,
+      title: {
+        $regex: new RegExp(req.query.title, "i"),
+      },
+    };
+  }
+  if (req.query.address) {
+    findParams = {
+      ...findParams,
+      address: {
+        $regex: new RegExp(req.query.address, "i"),
+      },
+    };
+  }
+// type de job
+  if (req.query.jobType) {
+    let jobTypes = [];
+    if (Array.isArray(req.query.jobType)) {
+      jobTypes = req.query.jobType;
+    } else {
+      jobTypes = [req.query.jobType];
+    }
+    console.log(jobTypes);
+    findParams = {
+      ...findParams,
+      jobType: {
+        $in: jobTypes,
+      },
+    };
+  }
+  // metier
+  if (req.query.domain) {
+    let domain = [];
+    if (Array.isArray(req.query.domain)) {
+      domain = req.query.domain;
+    } else {
+      domain = [req.query.domain];
+    }
+    console.log(domain);
+    findParams = {
+      ...findParams,
+      domain: {
+        $in: domain,
+      },
+    };
+  }
+  // experince 
+  if (req.query.experince) {
+    let experince = [];
+    if (Array.isArray(req.query.experince)) {
+      experince = req.query.experince;
+    } else {
+      experince = [req.query.experince];
+    }
+    console.log(experince);
+    findParams = {
+      ...findParams,
+      experince: {
+        $in: experince,
+      },
+    };
+  }
+  if (req.query.contrat) {
+    let contrat = [];
+    if (Array.isArray(req.query.contrat)) {
+      contrat = req.query.contrat;
+    } else {
+      contrat = [req.query.contrat];
+    }
+    console.log(contrat);
+    findParams = {
+      ...findParams,
+      contrat: {
+        $in: contrat,
+      },
+    };
+  }
+  if (req.query.salaryMin && req.query.salaryMax) {
+    findParams = {
+      ...findParams,
+      $and: [
+        {
+          salary: {
+            $gte: parseInt(req.query.salaryMin),
+          },
+        },
+        {
+          salary: {
+            $lte: parseInt(req.query.salaryMax),
+          },
+        },
+      ],
+    };
+  } else if (req.query.salaryMin) {
+    findParams = {
+      ...findParams,
+      salary: {
+        $gte: parseInt(req.query.salaryMin),
+      },
+    };
+  } else if (req.query.salaryMax) {
+    findParams = {
+      ...findParams,
+      salary: {
+        $lte: parseInt(req.query.salaryMax),
+      },
+    };
+  }
+
+  if (req.query.duration) {
+    findParams = {
+      ...findParams,
+      duration: {
+        $lt: parseInt(req.query.duration),
+      },
+    };
+  }
+
+  if (req.query.asc) {
+    if (Array.isArray(req.query.asc)) {
+      req.query.asc.map((key) => {
+        sortParams = {
+          ...sortParams,
+          [key]: 1,
+        };
+      });
+    } else {
+      sortParams = {
+        ...sortParams,
+        [req.query.asc]: 1,
+      };
+    }
+  }
+
+  if (req.query.desc) {
+    if (Array.isArray(req.query.desc)) {
+      req.query.desc.map((key) => {
+        sortParams = {
+          ...sortParams,
+          [key]: -1,
+        };
+      });
+    } else {
+      sortParams = {
+        ...sortParams,
+        [req.query.desc]: -1,
+      };
+    }
+  }
+
+  console.log(findParams);
+  console.log(sortParams);
+
+ 
+
+   //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+
+  let arr = [
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "recruiter"
+      },
+      
+    },
+    { $unwind: "$recruiter" },
+    { $match: findParams },
+  ];
+
+  if (Object.keys(sortParams).length > 0) {
+    arr = [
+      {
+        $lookup: {
+          from: "recruiterinfos",
+          localField: "userId",
+          foreignField: "userId",
+          as: "recruiter",
+        },
+      },
+      { $unwind: "$recruiter" },
+      { $match: findParams },
+      {
+        $sort: sortParams,
+      },
+    ];
+  }
+
+  console.log(arr);
+  let sort  = {dateOfPosting:-1}
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 9;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  const total = await Job.countDocuments({})
+  const numberPages = Math.ceil(total / limit)
+  Job.find(findParams).collation({ locale: "en" }).sort(sort).skip(skip).limit(limit)
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No job found",
+        });
+        return;
+      }
+      res.json({
+        total,
+        });
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
     //delete a user
 router.delete("/users/:id",jwtAuth,(req, res) => {
     //let user = req.user;  
@@ -444,7 +799,13 @@ router.delete("/users/:id",jwtAuth,(req, res) => {
   });
 // ajouter un testmonial
 router.post("/testmonials",jwtAuth,(req, res) => {
-    
+  let user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to add jobs",
+    });
+    return;
+  }
     const data = req.body;
 
       let testmonial = new Testmonial({
@@ -462,8 +823,43 @@ router.post("/testmonials",jwtAuth,(req, res) => {
       res.status(400).json(err);
     });
   });
+  // delete a testmonial
+router.delete("/testmonials/:id",jwtAuth,(req, res) => {
+    let user = req.user;
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to add jobs",
+      });
+      return;
+    }
+    Testmonial.findOneAndDelete({
+      _id:req.params.id
+    })
+    .then((step)=>{
+      if(step === null){
+        res.status(401).json({
+         message: "You don't have permissions to delete the Testmonial",
+       })
+       return
+      }
+      res.json({
+       message: "Testmonial deleted successfully",
+   
+      })
+    })
+    .catch((err) => {
+     res.status(400).json(err);
+   });
+    });
  //get all testmonials
 router.get("/testmonials",jwtAuth,(req, res)=>{
+  let user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to add jobs",
+    });
+    return;
+  }
     let query = {};
     let limit = 5;
     let sort  = {dateOfpost:-1}
@@ -541,7 +937,7 @@ router.post("/newsletter",jwtAuth,(req, res) => {
       res.status(400).json(err);
     });
   });
-  
+  // delete Newsletter
 router.delete('/newsletter/:id',jwtAuth,(req, res)=>{
     const user = req.user;
     if(user.type != "admin"){
@@ -681,5 +1077,52 @@ router.post('/signup',(req, res)=>{
     });
     })
   })
- 
+router.post("/jobs", jwtAuth,uploadjob.single("jobImage") ,(req, res) => {
+    const user = req.user;
+    //const name = req.name;
+  console.log(user.name)
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to add jobs",
+      });
+      return;
+    }
+    //const jobImage =req.body
+    const data = req.body;
+  
+    let job = new Job({
+      userId: user._id,
+      name: "SIIS Jobs",
+      jobImage :data.jobImage, 
+      domain:data.domain,
+      contrat:data.contrat,
+      TeleTravailler:data.TeleTravailler,
+      experince:data.experince,
+      title: data.title,
+      subtitle: data.subtitle,
+      description: data.description,
+      maxApplicants: data.maxApplicants,
+      maxPositions: data.maxPositions,
+      dateOfPosting: data.dateOfPosting,
+      deadline: data.deadline,
+      skillsets: data.skillsets,
+      taches: data.taches,
+      jobType: data.jobType,
+      duration: data.duration,
+      salary: data.salary,
+      rating: data.rating,
+      address: data.address,
+  
+    });
+  
+    job
+      .save()
+      .then(() => {
+         res.json({ message: "Job added successfully to the database",
+         skillsets: job.skillsets});
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  });
 module.exports = router;
