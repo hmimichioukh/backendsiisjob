@@ -114,7 +114,7 @@ router.post('/reset',(req,res)=>{
 User.findOne({ email: req.body.email })
 .then((user)=>{
   if(!user){
-    return res.status(404).json({error:"User dont exist with this email"})
+    return res.status(400).json({error:"User dont exist with this email"})
   }
   user.restToken = token
   user.expireToken = Date.now() + 3600000
