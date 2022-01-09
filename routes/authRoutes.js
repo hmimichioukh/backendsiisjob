@@ -107,12 +107,32 @@ router.post("/login", (req, res, next) => {
 //reset password
 router.post('/reset',(req,res)=>{
 const {email} = req.body
-User.findOne({ email: email })
-.then((user)=>{
-  if(!user){
-    return res.status(400).json({error:"User dont exist with this email"})
+User.findOne({ email: email }, function (err, user) {
+  if (err) {
+    return res.status(500).send({ message: "An unexpected error occurred" });
   }
-  console.log('nice')
+  if (!user) return res.status(404).send({ message: "No user found with this email address." });
+  var token = new Token({
+    _userId: user._id,
+    token: crypto.randomBytes(16).toString("hex"),
+  });
+  user.resetToken =token.token;
+  user.expireToken  = moment().add(12, "hours");
+  user.save(function(err){
+    if (err) {
+      return res.status(500).send({ message: "An unexpected error occurred" });
+    }
+    transporter.sendMail({
+      to:user.email,
+      from:process.env.EMAIL,
+      subject:"password reset",
+      html:`
+      <p>You requested for password reset</p>
+      <h5>click in this <a href="http://siisjob.herokuapp.com/resetpassword/reset/${token.token}">link</a> to reset password</h5>
+      `
+  })
+  })
+
 })
 })
 router.post('/new-password',(req,res)=>{
