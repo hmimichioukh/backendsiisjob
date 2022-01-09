@@ -107,10 +107,7 @@ router.post("/login", (req, res, next) => {
 
 //reset password
 router.post('/reset',(req,res)=>{
-  crypto.randomBytes(32,(err,buffer)=>{
-    if(err){
-        console.log(err)
-    }
+
 User.findOne({ email: req.body.email })
 .then((user)=>{
   if(!user){
@@ -131,7 +128,6 @@ User.findOne({ email: req.body.email })
   res.json({message:"check your email"})
 
   })
-})
 })
 })
 router.post('/new-password',(req,res)=>{
