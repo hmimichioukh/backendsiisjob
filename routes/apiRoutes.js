@@ -452,7 +452,7 @@ router.get("/jobs",async(req, res) => {
   console.log(arr);
   let sort  = {dateOfPosting:-1}
   const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
-  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 9;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 6;
   const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
   const total = await Job.countDocuments({})
   const numberPages = Math.ceil(total / limit)
@@ -476,6 +476,44 @@ router.get("/jobs",async(req, res) => {
       res.status(400).json(err);
     });
 });
+
+
+// get suggest jobs for a user 
+router.get('/suggest',jwtAuth,async(req,res)=>{
+    let user = req.user;
+    if (user.type != "applicant") {
+      res.status(401).json({
+        message: "You Look like you are not applicant",
+      });
+      return;
+    }
+   
+    Job.aggregate([
+      { $sample: { size: 6 } }
+  ]).then((posts) => {
+        if (posts == null) {
+          res.status(404).json({
+            message: "No job found",
+          });
+          return;
+        }
+        res.json({
+         data:posts,
+        });
+        //console.log(posts)
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+})
+
+
+
+
+
+
+
+
 //to get jobs poted by a recruiter
 router.get("/myJobs",jwtAuth,(req, res) => {
   
@@ -2305,5 +2343,6 @@ router.get("/enterpriseJobs/:id",(req, res) => {
       res.status(400).json(err);
     });
 });
+
 
 module.exports = router;
