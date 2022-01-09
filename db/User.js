@@ -51,6 +51,8 @@ let schema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    resetToken:String,
+    expireToken:Date,
    
   },
   { collation: { locale: "en" } }

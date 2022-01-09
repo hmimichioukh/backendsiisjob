@@ -506,11 +506,131 @@ router.get('/suggest',jwtAuth,async(req,res)=>{
         res.status(400).json(err);
       });
 })
+// after click suggest
+router.get("/jobsuggest",jwtAuth,async(req, res) => {
 
+  let user = req.user;
+  if (user.type != "applicant") {
+    res.status(401).json({
+      message: "You Look like you are not applicant",
+    });
+    return;
+  }
+  //let user = req.user;
 
+  let findParams = {};
+  let sortParams = {};
 
+  // to list down jobs posted by a particular recruiter
+  /*if (user.type === "recruiter" && req.query.myjobs) {
+    findParams = {
+      ...findParams,
+      userId: user._id,
+    };
+  }
+*/
+// search bar
 
+// type de job
+  // metier
+  if (req.query.domain) {
+    let domain = [];
+    if (Array.isArray(req.query.domain)) {
+      domain = req.query.domain;
+    } else {
+      domain = [req.query.domain];
+    }
+    console.log(domain);
+    findParams = {
+      ...findParams,
+      domain: {
+        $in: domain,
+      },
+    };
+  }
+  // experince 
+  if (req.query.experince) {
+    let experince = [];
+    if (Array.isArray(req.query.experince)) {
+      experince = req.query.experince;
+    } else {
+      experince = [req.query.experince];
+    }
+    console.log(experince);
+    findParams = {
+      ...findParams,
+      experince: {
+        $in: experince,
+      },
+    };
+  }
 
+  console.log(findParams);
+  console.log(sortParams);
+
+ 
+
+   //Job.find(findParams).collation({ locale: "en" }).sort(sortParams).skip(skip).limit(limit)
+
+  let arr = [
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "recruiter"
+      },
+      
+    },
+    { $unwind: "$recruiter" },
+    { $match: findParams },
+  ];
+
+  if (Object.keys(sortParams).length > 0) {
+    arr = [
+      {
+        $lookup: {
+          from: "recruiterinfos",
+          localField: "userId",
+          foreignField: "userId",
+          as: "recruiter",
+        },
+      },
+      { $unwind: "$recruiter" },
+      { $match: findParams },
+      {
+        $sort: sortParams,
+      },
+    ];
+  }
+
+  console.log(arr);
+  let sort  = {dateOfPosting:-1}
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 9;
+  const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  const total = await Job.countDocuments({})
+  const numberPages = Math.ceil(total / limit)
+  Job.find(findParams).collation({ locale: "en" }).sort(sort).skip(skip).limit(limit)
+    .then((posts) => {
+      if (posts == null) {
+        res.status(404).json({
+          message: "No job found",
+        });
+        return;
+      }
+      res.json({
+        numberPages,
+        page,
+        limit,
+        data:posts,
+      });
+      //console.log(posts)
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
 
 
 
