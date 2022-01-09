@@ -8,7 +8,6 @@ const User = require("../db/User");
 const JobApplicant = require("../db/JobApplicant");
 const Recruiter = require("../db/Recruiter");
 const nodemailer = require('nodemailer')
-const sendgridTransport = require('nodemailer-sendgrid-transport')
 require("dotenv").config();
 
 const router = express.Router();
@@ -108,30 +107,12 @@ router.post("/login", (req, res, next) => {
 //reset password
 router.post('/reset',(req,res)=>{
 const {email} = req.body
-
 User.findOne({ email: email })
-
 .then((user)=>{
   if(!user){
     return res.status(400).json({error:"User dont exist with this email"})
   }
-  user.restToken = crypto.randomBytes(32).toString('hex')
-  user.expireToken = Date.now() + 3600000
-  user.save().then((result)=>{
-    transporter.sendMail({
-      to:user.email,
-      from:process.env.EMAIL,
-      subject:"password reset",
-      html:`
-      <p>You requested for password reset</p>
-      <h5>click in this <a href="http://siisjob.herokuapp.com/resetpassword/${token}">link</a> to reset password</h5>
-      `
-  })
-  res.json({message:"check your email"})
-
-  }) .catch((err) => {
-    res.status(400).json(err);
-  });
+  console.log('nice')
 })
 })
 router.post('/new-password',(req,res)=>{
