@@ -129,7 +129,9 @@ User.findOne({ email: email })
   })
   res.json({message:"check your email"})
 
-  })
+  }) .catch((err) => {
+    res.status(400).json(err);
+  });
 })
 })
 router.post('/new-password',(req,res)=>{
