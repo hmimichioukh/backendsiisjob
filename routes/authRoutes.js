@@ -107,18 +107,15 @@ router.post("/login", (req, res, next) => {
 
 //reset password
 router.post('/reset',(req,res)=>{
-  crypto.randomBytes(32,(err,buffer)=>{
-    if(err){
-        console.log(err)
-    }
-    const token = buffer.toString("hex")
+const {email} = req.body
 
-User.findOne({ email: req.body.email })
+User.findOne({ email: email })
+
 .then((user)=>{
   if(!user){
     return res.status(400).json({error:"User dont exist with this email"})
   }
-  user.restToken = token
+  user.restToken = crypto.randomBytes(32).toString('hex')
   user.expireToken = Date.now() + 3600000
   user.save().then((result)=>{
     transporter.sendMail({
@@ -127,13 +124,12 @@ User.findOne({ email: req.body.email })
       subject:"password reset",
       html:`
       <p>You requested for password reset</p>
-      <h5>click in this <a href="${process.env.SENDGRID_API}/reset/${token}">link</a> to reset password</h5>
+      <h5>click in this <a href="http://siisjob.herokuapp.com/resetpassword/${token}">link</a> to reset password</h5>
       `
   })
   res.json({message:"check your email"})
 
   })
-})
 })
 })
 router.post('/new-password',(req,res)=>{
