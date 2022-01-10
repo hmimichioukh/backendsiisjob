@@ -100,6 +100,22 @@ let schema = new mongoose.Schema(
         },
       ],
     },
+    Candidates: {
+      type: Number,
+      default: 0,
+      validate: [
+        {
+          validator: Number.isInteger,
+          msg: "Candidates should be an integer",
+        },
+        {
+          validator: function (value) {
+            return value >= 0;
+          },
+          msg: "Candidates should greater than equal to 0",
+        },
+      ],
+    },
     dateOfPosting: {
       type: Date,
       default: Date.now,

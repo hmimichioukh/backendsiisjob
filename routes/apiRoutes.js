@@ -1551,59 +1551,31 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
                 application
                   .save()
                   .then(() => {
-                    Application.updateMany(
-                      {
-                        _id: {
-                          $ne: application._id,
+                    if (status === "accepted") {
+                      Job.findOneAndUpdate(
+                        {
+                          _id: job._id,
+                          userId: user._id,
                         },
-                        userId: application.userId,
-                        status: {
-                          $nin: [
-                            "rejected",
-                            "deleted",
-                            "cancelled",
-                            "accepted",
-                            "finished",
-                          ],
-                        },
-                      },
-                      {
-                        $set: {
-                          status: "cancelled",
-                        },
-                      },
-                      { multi: true }
-                    )
-                      .then(() => {
-                        if (status === "accepted") {
-                          Job.findOneAndUpdate(
-                            {
-                              _id: job._id,
-                              userId: user._id,
-                            },
-                            {
-                              $set: {
-                                acceptedCandidates: activeApplicationCount + 1,
-                              },
-                            }
-                          )
-                            .then(() => {
-                              res.json({
-                                message: `Application ${status} successfully`,
-                              });
-                            })
-                            .catch((err) => {
-                              res.status(400).json(err);
-                            });
-                        } else {
+                        {
+                          $set: {
+                            acceptedCandidates: activeApplicationCount + 1,
+                          },
+                        }
+                      )
+                        .then(() => {
                           res.json({
                             message: `Application ${status} successfully`,
                           });
-                        }
-                      })
-                      .catch((err) => {
-                        res.status(400).json(err);
+                        })
+                        .catch((err) => {
+                          res.status(400).json(err);
+                        });
+                    } else {
+                      res.json({
+                        message: `Application ${status} successfully`,
                       });
+                    }
                   })
                   .catch((err) => {
                     res.status(400).json(err);
