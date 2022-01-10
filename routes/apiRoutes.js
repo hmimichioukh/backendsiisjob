@@ -1242,6 +1242,9 @@ router.put("/user", jwtAuth,upload.single("imageUser"), (req, res) => {
         if (data.experince) {
           jobApplicant.experince = req.body.experince;
         }
+        if (data.cv) {
+          jobApplicant.cv = req.body.cv;
+        }
         /*
         if (data.education) {
           jobApplicant.education = data.education;

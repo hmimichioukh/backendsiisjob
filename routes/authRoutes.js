@@ -105,7 +105,7 @@ router.post("/login", (req, res, next) => {
 });
 
 //reset password
-router.post('/reset',(req,res)=>{
+router.post('/reset',(req,res,next)=>{
 const {email} = req.body
 const token = buffer.toString("hex")
 User.findOne({ email: email }, function (err, user) {
@@ -114,7 +114,7 @@ User.findOne({ email: email }, function (err, user) {
   }
   if (!user) return res.status(404).send({ message: "No user found with this email address." });
  
-  user.resetToken =token;
+  user.resetToken =crypto.randomBytes(20).toString("hex");
   user.expireToken  = moment().add(12, "hours");
   user.save(function(err){
     if (err) {
