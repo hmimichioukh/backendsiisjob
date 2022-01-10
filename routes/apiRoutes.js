@@ -1100,7 +1100,7 @@ router.post("/userupload", jwtAuth,upload.single("imageUser"), (req, res)=>{
 // upload cv 
 router.post("/useruploadcv", jwtAuth,uploadcv.single("cv"), (req, res)=>{
   const user   = req.user;
-  const cv = req.file.path;
+  const data   = req.body;
   if (user.type == "recruiter") {
     Recruiter.findOne({ userId: user._id })
       .then((recruiter) => {
@@ -1136,8 +1136,8 @@ router.post("/useruploadcv", jwtAuth,uploadcv.single("cv"), (req, res)=>{
           });
           return;
         }
-        if (cv) {
-          jobApplicant.cv = cv;
+        if (data.cv) {
+          jobApplicant.cv = req.body.cv;
         }
      
         console.log(jobApplicant);
