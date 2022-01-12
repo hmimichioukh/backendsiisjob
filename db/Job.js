@@ -32,9 +32,6 @@ let schema = new mongoose.Schema(
     contrat:{
       type:String
     },
-    TeleTravailler:{
-      type:Boolean
-    },
     address: {
       type: String,
     },

@@ -452,7 +452,7 @@ router.get("/jobs",async(req, res) => {
   console.log(arr);
   let sort  = {dateOfPosting:-1}
   const page = parseInt(req.query.page) ? parseInt(req.query.page) :1;
-  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 6;
+  const limit = parseInt(req.query.index) ? parseInt(req.query.index) : 9;
   const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
   const total = await Job.countDocuments({})
   const numberPages = Math.ceil(total / limit)
