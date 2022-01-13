@@ -98,9 +98,8 @@ router.get('/steps',(req,res)=>{
 // get Partenaire
 router.get('/partenaire',(req,res)=>{
   let query = {};
-  let limit = 5;
   let sort  = {dateOfPosting:1}
-  Partenaire.find(query).sort(sort).limit(limit)
+  Partenaire.find(query).sort(sort).limit()
   .then((posts)=>{
       if(posts == null){
           res.status(404).json({

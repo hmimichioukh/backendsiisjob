@@ -174,10 +174,10 @@ router.get('/partenaire',jwtAuth,(req,res)=>{
     });
     return;
   }
+  let limit = 9;
   let query = {};
-  let limit = 5;
   let sort  = {dateOfPosting:1}
-  Partenaire.find(query).sort(sort).limit(limit)
+  Partenaire.find(query).sort(sort).limit()
   .then((posts)=>{
       if(posts == null){
           res.status(404).json({
@@ -937,6 +937,24 @@ router.post("/newsletter",jwtAuth,(req, res) => {
       res.status(400).json(err);
     });
   });
+router.get("/newsletter",(req, res)=>{
+    let query = {};
+    let limit = 1;
+    let sort  = {dateOfpost:-1}
+    Newsletter.find(query).sort(sort).limit(limit)
+    .then((posts)=>{
+        if(posts == null){
+            res.status(404).json({
+                message: "No Newsletter found"
+            });
+            return
+        }
+        res.json(posts);
+    })
+    .catch((err) => {
+        res.status(400).json(err);
+    })
+  });
   // delete Newsletter
 router.delete('/newsletter/:id',jwtAuth,(req, res)=>{
     const user = req.user;
@@ -966,6 +984,52 @@ router.delete('/newsletter/:id',jwtAuth,(req, res)=>{
       res.status(400).json(err);
     });
   })
+
+//update newsletter
+router.put('/newsletter/:id',jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to change the hero details",
+    });
+    return;
+  }
+  Newsletter.findOne({ 
+    _id:req.params.id
+  })
+  .then((news) => {
+    if(news == null){
+      res.status(404).json({
+        message: "Hero dont exist"
+      })
+      return;
+    }
+    const data = req.body
+    if(data.title){
+      news.title = data.title
+    }
+    if(data.message){
+      news.message = data.message
+    }
+    if(data.newsImage){
+      news.newsImage = data.newsImage
+    }
+    if(data.buttonText){
+      news.buttonText = data.buttonText
+    }
+    news
+    .save()
+    .then(() => {
+      res.json({ message:"hero details updated successfully"})
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+})
+.catch((err) => {
+  res.status(400).json(err);
+});
+})
   //get all the messages
 router.get('/messages',jwtAuth,(req,res) => {
     let query = {};
@@ -1079,7 +1143,6 @@ router.post('/signup',(req, res)=>{
   })
 router.post("/jobs", jwtAuth,uploadjob.single("jobImage") ,(req, res) => {
     const user = req.user;
-    //const name = req.name;
   console.log(user.name)
     if (user.type != "admin") {
       res.status(401).json({
@@ -1125,4 +1188,262 @@ router.post("/jobs", jwtAuth,uploadjob.single("jobImage") ,(req, res) => {
         res.status(400).json(err);
       });
   });
+// create a consultant
+router.post("/consultant",jwtAuth,(req, res)=>{
+  const user = req.user;
+  console.log(user.name)
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to add Consultant",
+      });
+      return;
+    }
+    const data = req.body;
+  let consultant = new User({
+    email: data.email,
+    name: data.name,
+    password: data.password,
+    type: data.type,
+  });
+  
+  consultant
+    .save()
+    .then(() => {
+      const userDetails =
+            new JobApplicant({
+              userId: user._id,
+              phone:user.phone,
+              name: data.name,
+              email:data.email,
+              resume: data.resume,
+              profile: data.profile,
+            });
+      userDetails
+        .save()
+        .then(() => {
+          res.json({
+            message: "Cosnultan ajouter",
+          });
+        })
+        .catch((err) => {
+          consultant
+            .delete()
+            .then(() => {
+              res.status(400).json(err);
+            })
+            .catch((err) => {
+              res.json({ error: err });
+            });
+          err;
+        });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+})
+router.post("/enterprise",jwtAuth,(req, res)=>{
+  const user = req.user;
+  console.log(user.name)
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to add Consultant",
+      });
+      return;
+    }
+    const data = req.body;
+  let consultant = new User({
+    email: data.email,
+    name: data.name,
+    password: data.password,
+    type: data.type,
+  });
+  
+  consultant
+    .save()
+    .then(() => {
+      const userDetails =
+            new Recruiter({
+              userId: user._id,
+              name: data.name,
+              phone: data.phone,
+              bio: data.bio,
+              address:data.address,
+              email: data.email,
+            })
+      userDetails
+        .save()
+        .then(() => {
+          res.json({
+            message: "Cosnultan ajouter",
+          });
+        })
+        .catch((err) => {
+          consultant
+            .delete()
+            .then(() => {
+              res.status(400).json(err);
+            })
+            .catch((err) => {
+              res.json({ error: err });
+            });
+          err;
+        });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+})
+
+//get enterprise candidates
+router.get("/applicants", jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type === "admin") {
+    let findParams = {};
+    if (req.query.jobId) {
+      findParams = {
+        ...findParams,
+        jobId: new mongoose.Types.ObjectId(req.query.jobId),
+      };
+    }
+    if (req.query.status) {
+      if (Array.isArray(req.query.status)) {
+        findParams = {
+          ...findParams,
+          status: { $in: req.query.status },
+        };
+      } else {
+        findParams = {
+          ...findParams,
+          status: req.query.status,
+        };
+      }
+    }
+    let sortParams = {};
+
+    if (!req.query.asc && !req.query.desc) {
+      sortParams = { _id: 1 };
+    }
+
+    if (req.query.asc) {
+      if (Array.isArray(req.query.asc)) {
+        req.query.asc.map((key) => {
+          sortParams = {
+            ...sortParams,
+            [key]: 1,
+          };
+        });
+      } else {
+        sortParams = {
+          ...sortParams,
+          [req.query.asc]: 1,
+        };
+      }
+    }
+
+    if (req.query.desc) {
+      if (Array.isArray(req.query.desc)) {
+        req.query.desc.map((key) => {
+          sortParams = {
+            ...sortParams,
+            [key]: -1,
+          };
+        });
+      } else {
+        sortParams = {
+          ...sortParams,
+          [req.query.desc]: -1,
+        };
+      }
+    }
+
+    Application.aggregate([
+      {
+        $lookup: {
+          from: "jobapplicantinfos",
+          localField: "userId",
+          foreignField: "userId",
+          as: "jobApplicant",
+        },
+      },
+      { $unwind: "$jobApplicant" },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      { $unwind: "$job" },
+      { $match: findParams },
+      { $sort: sortParams },
+    ])
+      .then((applications) => {
+        if (applications.length === 0) {
+          res.status(404).json({
+            message: "No applicants found",
+          });
+          return;
+        }
+        res.json(applications);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  } else {
+    res.status(400).json({
+      message: "You are not allowed to access applicants list",
+    });
+  }
+});
+// get consultant candidates
+router.get("/applications/:id", jwtAuth,(req, res) => {
+  const user = req.user;
+  const id = req.params.id;
+
+  // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+
+  Application.aggregate([
+    {
+      $lookup: {
+        from: "jobapplicantinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "jobApplicant",
+      },
+    },
+    { $unwind: "$jobApplicant" },
+    {
+      $lookup: {
+        from: "jobs",
+        localField: "jobId",
+        foreignField: "_id",
+        as: "job",
+      },
+    },
+    { $unwind: "$job" },
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "recruiterId",
+        foreignField: "userId",
+        as: "recruiter",
+      },
+    },
+    { $unwind: "$recruiter" },
+    {
+      $sort: {
+        dateOfApplication: -1,
+      },
+    },
+  ])
+    .then((applications) => {
+      res.json(applications);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
 module.exports = router;

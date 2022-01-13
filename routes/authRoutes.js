@@ -48,9 +48,6 @@ router.post("/signup", (req, res) => {
               phone:user.phone,
               name: data.name,
               email:data.email,
-              //education: data.education,
-              //skills: data.skills,
-              //rating: data.rating,
               resume: data.resume,
               profile: data.profile,
             });
