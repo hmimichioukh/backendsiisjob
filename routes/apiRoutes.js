@@ -2127,38 +2127,7 @@ router.get("/rating", jwtAuth, (req, res) => {
   });
 });
 
-// Application.findOne({
-//   _id: id,
-//   userId: user._id,
-// })
-//   .then((application) => {
-//     application.status = status;
-//     application
-//       .save()
-//       .then(() => {
-//         res.json({
-//           message: `Application ${status} successfully`,
-//         });
-//       })
-//       .catch((err) => {
-//         res.status(400).json(err);
-//       });
-//   })
-//   .catch((err) => {
-//     res.status(400).json(err);
-//   });
 
-// router.get("/jobs", (req, res, next) => {
-//   passport.authenticate("jwt", { session: false }, function (err, user, info) {
-//     if (err) {
-//       return next(err);
-//     }
-//     if (!user) {
-//       res.status(401).json(info);
-//       return;
-//     }
-//   })(req, res, next);
-// });
 // get all company 
 router.get("/enterprise",(req, res) => {
 
@@ -2440,3 +2409,35 @@ router.get("/enterpriseJobs/:id",(req, res) => {
 
 
 module.exports = router;
+// Application.findOne({
+//   _id: id,
+//   userId: user._id,
+// })
+//   .then((application) => {
+//     application.status = status;
+//     application
+//       .save()
+//       .then(() => {
+//         res.json({
+//           message: `Application ${status} successfully`,
+//         });
+//       })
+//       .catch((err) => {
+//         res.status(400).json(err);
+//       });
+//   })
+//   .catch((err) => {
+//     res.status(400).json(err);
+//   });
+
+// router.get("/jobs", (req, res, next) => {
+//   passport.authenticate("jwt", { session: false }, function (err, user, info) {
+//     if (err) {
+//       return next(err);
+//     }
+//     if (!user) {
+//       res.status(401).json(info);
+//       return;
+//     }
+//   })(req, res, next);
+// });

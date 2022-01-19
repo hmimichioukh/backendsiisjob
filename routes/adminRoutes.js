@@ -1414,16 +1414,33 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
     };
   }
   let arr = [
-    {
+       {
       $lookup: {
         from: "jobapplicantinfos",
         localField: "userId",
         foreignField: "userId",
         as: "jobApplicant",
       },
-      
     },
     { $unwind: "$jobApplicant" },
+    {
+      $lookup: {
+        from: "jobs",
+        localField: "jobId",
+        foreignField: "_id",
+        as: "job",
+      },
+    },
+    { $unwind: "$job" },
+    {
+      $lookup: {
+        from: "recruiterinfos",
+        localField: "recruiterId",
+        foreignField: "userId",
+        as: "recruiter",
+      },
+    },
+    { $unwind: "$recruiter" },
     { $match: findParams },
   ];
   console.log(findParams);
