@@ -1397,14 +1397,52 @@ router.get("/applicants", jwtAuth, (req, res) => {
   }
 });
 // get consultant candidates
-router.get("/applications/:id", jwtAuth,(req, res) => {
+
+router.get("/applications/:id", jwtAuth, (req, res) => {
   const user = req.user;
   const id = req.params.id;
-
+  user.type = "applicant"
   // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
   // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
   // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
+  let findParams = {};
 
+  if (req.params.id) {
+    findParams = {
+      ...findParams,
+      userId: id,
+    };
+  }
+  let arr = [
+    {
+      $lookup: {
+        from: "jobapplicantinfos",
+        localField: "userId",
+        foreignField: "userId",
+        as: "jobApplicant",
+      },
+      
+    },
+    { $unwind: "$jobApplicant" },
+    { $match: findParams },
+  ];
+  console.log(findParams);
+  Application.find(findParams).collation({ locale: "en" }).sort().skip().limit()
+  .then((posts) => {
+    if (posts == null) {
+      res.status(404).json({
+        message: "No job found",
+      });
+      return;
+    }
+    res.json(posts);
+    //console.log(posts)
+  })
+  .catch((err) => {
+    res.status(400).json(err);
+  });
+
+/*
   Application.aggregate([
     {
       $lookup: {
@@ -1434,6 +1472,10 @@ router.get("/applications/:id", jwtAuth,(req, res) => {
     },
     { $unwind: "$recruiter" },
     {
+      $match: {
+        [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,      },
+    },
+    {
       $sort: {
         dateOfApplication: -1,
       },
@@ -1441,6 +1483,42 @@ router.get("/applications/:id", jwtAuth,(req, res) => {
   ])
     .then((applications) => {
       res.json(applications);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });*/
+});
+// get user by id
+router.get("/applicant/:id",jwtAuth, (req, res) => {
+  const user = req.user;
+  console.log(user.name)
+    if (user.type != "admin") {
+      res.status(401).json({
+        message: "You don't have permissions to See Consultant",
+      });
+      return;
+    }
+  User.findOne({ _id: req.params.id })
+    .then((userData) => {
+      if (userData === null) {
+        res.status(404).json({
+          message: "User does not exist",
+        });
+        return;
+      }
+      JobApplicant.findOne({ userId: userData._id })
+      .then((applicant) => {
+        if (applicant === null) {
+          res.status(404).json({
+            message: "User does not exist",
+          });
+          return;
+        }
+        res.json(applicant);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
     })
     .catch((err) => {
       res.status(400).json(err);
