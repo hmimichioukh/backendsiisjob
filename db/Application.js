@@ -17,7 +17,7 @@ let schema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "postule ", // when a applicant is applied
+        "postule", // when a applicant is applied
         "entretien", // when a applicant is shortlisted
         "accepté", // when a applicant is accepted
         "rejeté", // when a applicant is rejeté
