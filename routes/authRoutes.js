@@ -27,6 +27,8 @@ router.post("/signup", (req, res) => {
     name: data.name,
     password: data.password,
     type: data.type,
+    phone: data.phone,
+
   });
   
   user
@@ -49,7 +51,7 @@ router.post("/signup", (req, res) => {
               name: data.name,
               email:data.email,
               resume: data.resume,
-              profile: data.profile,
+              phone: data.phone,
             });
 
       userDetails

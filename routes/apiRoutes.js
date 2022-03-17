@@ -1302,7 +1302,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
     userId: user._id,
     jobId: jobId,
     status: {
-      $nin: ["deleted", "accepted", "cancelled"],
+      $nin: ["supprimé", "accepté", "annulé"],
     },
   })
     .then((appliedApplication) => {
@@ -1325,7 +1325,7 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
           Application.countDocuments({
             jobId: jobId,
             status: {
-              $nin: ["rejected", "deleted", "cancelled", "finished"],
+              $nin: ["rejeté", "supprimé", "annulé", "achevé"],
             },
           })
             .then((activeApplicationCount) => {
@@ -1333,21 +1333,21 @@ router.post("/jobs/:id/applications", jwtAuth, (req, res) => {
                 Application.countDocuments({
                   userId: user._id,
                   status: {
-                    $nin: ["rejected", "deleted", "cancelled", "finished"],
+                    $nin: ["rejeté", "supprimé", "annulé", "achevé"],
                   },
                 })
                   .then((myActiveApplicationCount) => {
                     if (myActiveApplicationCount < 10) {
                       Application.countDocuments({
                         userId: user._id,
-                        status: "accepted",
+                        status: "accepté",
                       }).then((acceptedJobs) => {
                         if (acceptedJobs < 10) {
                           const application = new Application({
                             userId: user._id,
                             recruiterId: job.userId,
                             jobId: job._id,
-                            status: "applied",
+                            status: "postule",
                             sop: data.sop,
                           });
                           application
@@ -1499,17 +1499,17 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
   const id = req.params.id;
   const status = req.body.status;
 
-  // "applied", // when a applicant is applied
-  // "shortlisted", // when a applicant is shortlisted
+  // "postule ", // when a applicant is applied
+  // "entretien", // when a applicant is shortlisted
   // entertien
-  // "accepted", // when a applicant is accepted
-  // "rejected", // when a applicant is rejected
-  // "deleted", // when any job is deleted
-  // "cancelled", // an application is cancelled by its author or when other application is accepted
-  // "finished", // when job is over
+  // "accepté", // when a applicant is accepted
+  // "rejeté", // when a applicant is rejeté
+  // "supprimé", // when any job is supprimé
+  // "annulé", // an application is annulé by its author or when other application is accepted
+  // "achevé", // when job is over
 
   if (user.type === "recruiter") {
-    if (status === "accepted") {
+    if (status === "accepté") {
       // get job id from application
       // get job info for maxPositions count
       // count applications that are already accepted
@@ -1541,7 +1541,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
             Application.countDocuments({
               recruiterId: user._id,
               jobId: job._id,
-              status: "accepted",
+              status: "accepté",
             }).then((activeApplicationCount) => {
               if (activeApplicationCount < job.maxPositions) {
                 // accepted
@@ -1550,7 +1550,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
                 application
                   .save()
                   .then(() => {
-                    if (status === "accepted") {
+                    if (status === "accepté") {
                       Job.findOneAndUpdate(
                         {
                           _id: job._id,
@@ -1596,7 +1596,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
           _id: id,
           recruiterId: user._id,
           status: {
-            $nin: ["rejected", "deleted", "cancelled"],
+            $nin: ["rejeté", "supprimé", "annulé"],
           },
         },
         {
@@ -1612,7 +1612,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
             });
             return;
           }
-          if (status === "finished") {
+          if (status === "achevé") {
             res.json({
               message: `Job ${status} successfully`,
             });
@@ -1627,7 +1627,7 @@ router.put("/applications/:id", jwtAuth, (req, res) => {
         });
     }
   } else {
-    if (status === "cancelled") {
+    if (status === "annulé") {
       console.log(id);
       console.log(user._id);
       Application.findOneAndUpdate(
@@ -1782,7 +1782,7 @@ router.put("/rating", jwtAuth, (req, res) => {
             userId: data.applicantId,
             recruiterId: user._id,
             status: {
-              $in: ["accepted", "finished"],
+              $in: ["accepté", "achevé"],
             },
           })
             .then((acceptedApplicant) => {
@@ -1952,7 +1952,7 @@ router.put("/rating", jwtAuth, (req, res) => {
             userId: user._id,
             jobId: data.jobId,
             status: {
-              $in: ["accepted", "finished"],
+              $in: ["accepté", "achevé"],
             },
           })
             .then((acceptedApplicant) => {
