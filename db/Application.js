@@ -25,7 +25,7 @@ let schema = new mongoose.Schema(
         "annulé", // an application is annulé by its author or when other application is accepted
         "achevé", // when job is over
       ],
-      default: "postule ",
+      default: "postule",
       required: true,
     },
     dateOfApplication: {

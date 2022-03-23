@@ -1541,4 +1541,32 @@ router.get("/applicant/:id",jwtAuth, (req, res) => {
       res.status(400).json(err);
     });
 });
+//delete job by admin 
+router.delete("/jobs/:id", jwtAuth, (req, res) => {
+  const user = req.user;
+  if (user.type != "admin") {
+    res.status(401).json({
+      message: "You don't have permissions to delete the job",
+    });
+    return;
+  }
+  Job.findOneAndDelete({
+    _id: req.params.id,
+    userId: user.id,
+  })
+    .then((job) => {
+      if (job === null) {
+        res.status(401).json({
+          message: "You don't have permissions to delete the job",
+        });
+        return;
+      }
+      res.json({
+        message: "Job deleted successfully",
+      });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
 module.exports = router;
