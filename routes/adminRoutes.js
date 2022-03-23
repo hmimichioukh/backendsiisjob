@@ -776,8 +776,8 @@ router.get("/countjobs",async(req, res) => {
     //delete a user
 router.delete("/users/:id",(req, res) => {
     //let user = req.user;  
-    User.findOne()
-    User.findOneAndDelete({
+    JobApplicant.findOne()
+    JobApplicant.findOneAndDelete({
         _id: req.params.id,      
      })
       .then((posts) => {
