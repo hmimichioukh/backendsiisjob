@@ -1561,4 +1561,42 @@ router.delete("/jobs/:id", (req, res) => {
       res.status(400).json(err);
     });
 });
+// to update info of a particular job
+router.put("/jobs/:id", (req, res) => {
+  Job.findOne({
+    _id: req.params.id,
+  })
+    .then((job) => {
+      if (job == null) {
+        res.status(404).json({
+          message: "Job does not exist",
+        });
+        return;
+      }
+      const data = req.body;
+      if (data.maxApplicants) {
+        job.maxApplicants = data.maxApplicants;
+      }
+      if (data.maxPositions) {
+        job.maxPositions = data.maxPositions;
+      }
+      if (data.deadline) {
+        job.deadline = data.deadline;
+      }
+      job
+        .save()
+        .then(() => {
+          res.json({
+            message: "Job details updated successfully",
+          });
+        })
+        .catch((err) => {
+          res.status(400).json(err);
+        });
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
+
 module.exports = router;

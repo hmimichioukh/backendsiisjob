@@ -476,7 +476,6 @@ router.get("/jobs",async(req, res) => {
     });
 });
 
-
 // get suggest jobs for a user 
 router.get('/suggest',jwtAuth,async(req,res)=>{
     let user = req.user;
@@ -2126,8 +2125,6 @@ router.get("/rating", jwtAuth, (req, res) => {
     });
   });
 });
-
-
 // get all company 
 router.get("/enterprise",(req, res) => {
 
@@ -2177,7 +2174,6 @@ router.get("/enterprise/:id", (req, res) => {
       res.status(400).json(err);
     });
 });
-
 //get Jobs of one company 
 router.get("/enterpriseJobs/:id",(req, res) => {
   
@@ -2406,8 +2402,6 @@ router.get("/enterpriseJobs/:id",(req, res) => {
       res.status(400).json(err);
     });
 });
-
-
 module.exports = router;
 // Application.findOne({
 //   _id: id,
