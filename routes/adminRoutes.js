@@ -774,10 +774,33 @@ router.get("/countjobs",async(req, res) => {
     });
 });
     //delete a user
-router.delete("/users/:id",(req, res) => {
+router.delete("/ent/:id",(req, res) => {
     //let user = req.user;  
     JobApplicant.findOne()
     JobApplicant.findOneAndDelete({
+        _id: req.params.id,      
+     })
+      .then((posts) => {
+        if (posts == null) {
+          res.status(401).json({
+            message: "You dont have permission to delete this user",
+          });
+          return;
+        }
+        res.json({
+            message: "User deleted successfully",
+
+        });
+        //console.log(posts)
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  });
+  router.delete("/users/:id",(req, res) => {
+    //let user = req.user;  
+    Recruiter.findOne()
+    Recruiter.findOneAndDelete({
         _id: req.params.id,      
      })
       .then((posts) => {
