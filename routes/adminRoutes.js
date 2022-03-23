@@ -774,7 +774,7 @@ router.get("/countjobs",async(req, res) => {
     });
 });
     //delete a user
-router.delete("/ent/:id",(req, res) => {
+router.delete("/users/:id",(req, res) => {
     //let user = req.user;  
     JobApplicant.findOne()
     JobApplicant.findOneAndDelete({
@@ -797,7 +797,7 @@ router.delete("/ent/:id",(req, res) => {
         res.status(400).json(err);
       });
   });
-  router.delete("/users/:id",(req, res) => {
+router.delete("/ent/:id",(req, res) => {
     //let user = req.user;  
     Recruiter.findOne()
     Recruiter.findOneAndDelete({
