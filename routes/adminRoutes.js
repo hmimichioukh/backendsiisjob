@@ -1583,17 +1583,20 @@ router.put("/jobs/:id", (req, res) => {
       if (data.jobImage) {
         job.jobImage = data.jobImage;
       }
-      if (data.maxApplicants) {
-        job.maxApplicants = data.maxApplicants;
+      if (data.contrat) {
+        job.contrat = data.contrat;
       }
       if (data.subtitle) {
         job.subtitle = data.subtitle;
       }
       if (data.domain) {
-        job.maxApplicants = data.domain;
+        job.domain = data.domain;
       }
       if (data.experince) {
         job.experince = data.experince;
+      }
+      if (data.address) {
+        job.address = data.address;
       }
       if (data.maxApplicants) {
         job.maxApplicants = data.maxApplicants;
