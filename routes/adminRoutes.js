@@ -774,7 +774,7 @@ router.get("/countjobs",async(req, res) => {
     });
 });
     //delete a user
-router.delete("/users/:id",jwtAuth,(req, res) => {
+router.delete("/users/:id",(req, res) => {
     //let user = req.user;  
     User.findOne()
     User.findOneAndDelete({

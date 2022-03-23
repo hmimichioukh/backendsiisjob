@@ -630,8 +630,6 @@ router.get("/jobsuggest",jwtAuth,async(req, res) => {
     });
 });
 
-
-
 //to get jobs poted by a recruiter
 router.get("/myJobs",jwtAuth,(req, res) => {
   
@@ -900,6 +898,30 @@ router.put("/jobs/:id", jwtAuth, (req, res) => {
         return;
       }
       const data = req.body;
+      if (data.title) {
+        job.title = data.title;
+      }
+      if (data.description) {
+        job.description = data.description;
+      }
+      if (data.jobImage) {
+        job.jobImage = data.jobImage;
+      }
+      if (data.contrat) {
+        job.contrat = data.contrat;
+      }
+      if (data.subtitle) {
+        job.subtitle = data.subtitle;
+      }
+      if (data.domain) {
+        job.domain = data.domain;
+      }
+      if (data.experince) {
+        job.experince = data.experince;
+      }
+      if (data.address) {
+        job.address = data.address;
+      }
       if (data.maxApplicants) {
         job.maxApplicants = data.maxApplicants;
       }
