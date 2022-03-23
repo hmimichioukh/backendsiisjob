@@ -1574,6 +1574,27 @@ router.put("/jobs/:id", (req, res) => {
         return;
       }
       const data = req.body;
+      if (data.title) {
+        job.title = data.title;
+      }
+      if (data.description) {
+        job.description = data.description;
+      }
+      if (data.jobImage) {
+        job.jobImage = data.jobImage;
+      }
+      if (data.maxApplicants) {
+        job.maxApplicants = data.maxApplicants;
+      }
+      if (data.subtitle) {
+        job.subtitle = data.subtitle;
+      }
+      if (data.domain) {
+        job.maxApplicants = data.domain;
+      }
+      if (data.experince) {
+        job.experince = data.experince;
+      }
       if (data.maxApplicants) {
         job.maxApplicants = data.maxApplicants;
       }
