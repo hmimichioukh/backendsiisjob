@@ -1598,5 +1598,20 @@ router.put("/jobs/:id", (req, res) => {
       res.status(400).json(err);
     });
 });
-
+router.get("/jobs/:id", (req, res) => {
+ 
+  Job.findOne({ _id: req.params.id })
+    .then((job) => {
+      if (job == null) {
+        res.status(400).json({
+          message: "Job does not exist",
+        });
+        return;
+      }
+      res.json(job);
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+});
 module.exports = router;
