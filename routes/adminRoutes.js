@@ -1545,7 +1545,6 @@ router.get("/applicant/:id",jwtAuth, (req, res) => {
 router.delete("/jobs/:id", (req, res) => {
   Job.findOneAndDelete({
     _id: req.params.id,
-    userId: user.id,
   })
     .then((job) => {
       if (job === null) {
