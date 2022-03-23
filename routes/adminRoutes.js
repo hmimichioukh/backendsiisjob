@@ -1542,14 +1542,7 @@ router.get("/applicant/:id",jwtAuth, (req, res) => {
     });
 });
 //delete job by admin 
-router.delete("/jobs/:id", jwtAuth, (req, res) => {
-  const user = req.user;
-  if (user.type != "admin") {
-    res.status(401).json({
-      message: "You don't have permissions to delete the job",
-    });
-    return;
-  }
+router.delete("/jobs/:id", (req, res) => {
   Job.findOneAndDelete({
     _id: req.params.id,
     userId: user.id,
