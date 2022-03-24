@@ -1436,6 +1436,7 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
       userId: id,
     };
   }
+  /*
   let arr = [
        {
       $lookup: {
@@ -1480,9 +1481,8 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
   })
   .catch((err) => {
     res.status(400).json(err);
-  });
+  });*/
 
-/*
   Application.aggregate([
     {
       $lookup: {
@@ -1511,10 +1511,7 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
       },
     },
     { $unwind: "$recruiter" },
-    {
-      $match: {
-        [user.type === "recruiter" ? "recruiterId" : "userId"]: user._id,      },
-    },
+    { $match: findParams },
     {
       $sort: {
         dateOfApplication: -1,
@@ -1526,7 +1523,7 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
     })
     .catch((err) => {
       res.status(400).json(err);
-    });*/
+    });
 });
 // get user by id
 router.get("/applicant/:id",jwtAuth, (req, res) => {
