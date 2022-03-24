@@ -1421,22 +1421,21 @@ router.get("/applicants", jwtAuth, (req, res) => {
 });
 // get consultant candidates
 
-router.get("/applications/:id", jwtAuth, (req, res) => {
-  const user = req.user;
+router.get("/applications/:id",jwtAuth, (req, res) => {
   const id = req.params.id;
-  user.type = "applicant"
+  const user = req.user;
+
   // const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
   // const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
   // const skip = page - 1 >= 0 ? (page - 1) * limit : 0;
   let findParams = {};
-
+   let userId = {};
   if (req.params.id) {
     findParams = {
       ...findParams,
       userId: id,
     };
   }
-  /*
   let arr = [
        {
       $lookup: {
@@ -1481,18 +1480,10 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
   })
   .catch((err) => {
     res.status(400).json(err);
-  });*/
-
+  });
+/*
   Application.aggregate([
-    {
-      $lookup: {
-        from: "jobapplicantinfos",
-        localField: "userId",
-        foreignField: "userId",
-        as: "jobApplicant",
-      },
-    },
-    { $unwind: "$jobApplicant" },
+    
     {
       $lookup: {
         from: "jobs",
@@ -1511,7 +1502,10 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
       },
     },
     { $unwind: "$recruiter" },
-    { $match: findParams },
+    { $match: {
+      [id]: user._id,
+    }, 
+  },
     {
       $sort: {
         dateOfApplication: -1,
@@ -1523,7 +1517,7 @@ router.get("/applications/:id", jwtAuth, (req, res) => {
     })
     .catch((err) => {
       res.status(400).json(err);
-    });
+    });*/
 });
 // get user by id
 router.get("/applicant/:id",jwtAuth, (req, res) => {
